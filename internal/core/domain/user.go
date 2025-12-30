@@ -8,24 +8,16 @@ import (
 
 type User struct {
 	BaseModel
-	Username       string `gorm:"unique;not null" json:"username"`
-	Password       string `gorm:"not null" json:"password"`
-	Dob            string `json:"dob"`
-	MobileNumber   string `json:"mobile_number"`
-	EnrollmentYear string `json:"enrollment_year"`
-	Role           string `gorm:"not null" json:"role"` // student/librarian
-	Email          string `gorm:"not null" json:"email"`
-	Gender         string `json:"gender"`
-	Level          string `json:"level"`
-	Batch          string `json:"batch"`
-	Section        string `json:"section"`
-	Image          string `json:"image"`
-	FullName       string `gorm:"column:full_name;not null" json:"full_name"`
-	ProgramID      string `json:"program_id"`
-	Program        string `json:"program"`
-	Semester       string `json:"semester"`
-	StudentID      string `gorm:"column:student_id" json:"student_id"`
-	IsActive       bool   `gorm:"column:is_active;default:false" json:"is_active"`
+	Username     string `gorm:"unique;not null"`
+	Password     string `gorm:"not null"`
+	Email        string `gorm:"unique;not null"`
+	MobileNumber string
+	FullName     string `gorm:"not null"`
+	Gender       string
+	Dob          time.Time
+	Image        string
+
+	IsActive bool `gorm:"default:true"`
 }
 
 type UserRequest struct {
