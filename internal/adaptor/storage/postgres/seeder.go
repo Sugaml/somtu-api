@@ -10,35 +10,89 @@ import (
 )
 
 func SeedUsers(db *gorm.DB) {
+	// -------------------------
+	// 1. Seed Roles
+	// -------------------------
+	roles := []domain.Role{
+		{Name: "STUDENT"},
+		{Name: "TEACHER"},
+		{Name: "ADMIN"},
+		{Name: "DIRECTOR"},
+		{Name: "LIBRARIAN"},
+		{Name: "STAFF"},
+	}
+
+	for _, role := range roles {
+		if err := db.FirstOrCreate(&role, domain.Role{Name: role.Name}).Error; err != nil {
+			logrus.Error("Failed to seed role:", role.Name, err)
+		}
+	}
+	logrus.Info("Roles seeded successfully")
+
+	// -------------------------
+	// 2. Seed Users
+	// -------------------------
 	users := []domain.User{
 		{
 			Username: "administrator",
 			Password: "administrator",
 			Email:    "administrator@gmail.com",
 			FullName: "Administrator",
-			Role:     "administrator",
 			IsActive: true,
 		},
 		{
 			Username: "librarian",
+			Password: "librarian",
 			Email:    "librarian@gmail.com",
 			FullName: "Librarian",
-			Password: "librarian",
-			Role:     "librarian",
 			IsActive: true,
 		},
 	}
-	for _, user := range users {
-		pwd, err := util.HashPassword(user.Password)
+
+	for i := range users {
+		pwd, err := util.HashPassword(users[i].Password)
 		if err != nil {
-			logrus.Error("Failed to seed user:", user, err)
+			logrus.Error("Password hash failed:", err)
+			continue
 		}
-		user.Password = pwd
-		if err := db.FirstOrCreate(&user, domain.User{Username: user.Username, Email: user.Email, Password: user.Password, Role: user.Role}).Error; err != nil {
-			logrus.Error("Failed to seed user:", user, err)
+		users[i].Password = pwd
+
+		if err := db.FirstOrCreate(
+			&users[i],
+			domain.User{Username: users[i].Username},
+		).Error; err != nil {
+			logrus.Error("Failed to seed user:", users[i].Username, err)
 		}
 	}
 	logrus.Info("Users seeded successfully")
+
+	// -------------------------
+	// 3. Assign Roles to Users
+	// -------------------------
+
+	var adminUser domain.User
+	var adminRole domain.Role
+
+	db.First(&adminUser, "username = ?", "administrator")
+	db.First(&adminRole, "name = ?", "ADMIN")
+	logrus.Infof("Admin User ID: %s", adminUser.ID)
+	// administrator → ADMIN
+	if err := db.Model(&adminUser).Association("Roles").Append(&adminRole); err != nil {
+		logrus.Error("Failed to assign ADMIN role:", err)
+	}
+
+	var librarianUser domain.User
+	var librarianRole domain.Role
+
+	db.First(&librarianUser, "username = ?", "librarian")
+	db.First(&librarianRole, "name = ?", "LIBRARIAN")
+
+	// librarian → LIBRARIAN
+	if err := db.Model(&librarianUser).Association("Roles").Append(&librarianRole); err != nil {
+		logrus.Error("Failed to assign LIBRARIAN role:", err)
+	}
+
+	logrus.Info("User roles seeded successfully")
 }
 
 func SeedCategories(db *gorm.DB) {

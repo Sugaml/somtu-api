@@ -16,8 +16,8 @@ type User struct {
 	Gender       string
 	Dob          time.Time
 	Image        string
-
-	IsActive bool `gorm:"default:true"`
+	Roles        []Role `gorm:"many2many:user_roles;"`
+	IsActive     bool   `gorm:"default:true"`
 }
 
 type UserRequest struct {

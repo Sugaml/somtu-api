@@ -11,14 +11,15 @@ const (
 
 type Room struct {
 	BaseModel
-	FloorID Floor
+
+	FloorID uint
 	Floor   Floor
 
 	RoomNumber   string   `gorm:"size:20"`
 	RoomCode     string   `gorm:"size:20;unique"`
-	RoomType     RoomType `gorm:"type:enum('CLASSROOM','LAB','SEMINAR','AUDITORIUM')"`
+	RoomType     RoomType `gorm:"type:varchar(20);not null"`
 	Capacity     int
 	HasProjector bool
 	HasAC        bool
-	Status       string `gorm:"default:ACTIVE"`
+	Status       string `gorm:"default:'ACTIVE'"`
 }

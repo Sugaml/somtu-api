@@ -22,13 +22,13 @@ func (s *Service) CreateBulkUser(data *[]domain.UserRequest) ([]*domain.UserResp
 		if err != nil {
 			return nil, err
 		}
-		if data.Role == "student" {
-			data.Username = strings.ToLower(data.Username) + "." + data.StudentID
-			studentExist, err := s.repo.GetStudentbyID(data.StudentID)
-			if studentExist != nil && err == nil {
-				return nil, errors.New("student already exist")
-			}
-		}
+		// if data.Role == "student" {
+		// 	data.Username = strings.ToLower(data.Username) + "." + data.StudentID
+		// 	studentExist, err := s.repo.GetStudentbyID(data.StudentID)
+		// 	if studentExist != nil && err == nil {
+		// 		return nil, errors.New("student already exist")
+		// 	}
+		// }
 		result, err := s.repo.CreateUser(data)
 		if err != nil {
 			return nil, err
@@ -64,13 +64,13 @@ func (s *Service) CreateUser(req *domain.UserRequest) (*domain.UserResponse, err
 	if err != nil {
 		return nil, err
 	}
-	if data.Role == "student" {
-		data.Username = strings.ToLower(data.Username) + "." + data.StudentID
-		studentExist, err := s.repo.GetStudentbyID(data.StudentID)
-		if studentExist != nil && err == nil {
-			return nil, errors.New("student already exist")
-		}
-	}
+	// if data.Role == "student" {
+	// 	data.Username = strings.ToLower(data.Username) + "." + data.StudentID
+	// 	studentExist, err := s.repo.GetStudentbyID(data.StudentID)
+	// 	if studentExist != nil && err == nil {
+	// 		return nil, errors.New("student already exist")
+	// 	}
+	// }
 	result, err := s.repo.CreateUser(data)
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func (s *Service) LoginUser(req *domain.LoginRequest) (*domain.LoginUserResponse
 	if err != nil {
 		return nil, err
 	}
-	logrus.Infof("User %s logged in successfully", user.Role)
+	// logrus.Infof("User %s logged in successfully", user.Role)
 	s.repo.CreateAuditLog(&domain.AuditLog{
 		Title:    fmt.Sprintf("User %s logged in.", user.Username),
 		UserID:   &user.ID,
@@ -116,9 +116,13 @@ func (s *Service) LoginUser(req *domain.LoginRequest) (*domain.LoginUserResponse
 		Data:     fmt.Sprintf("User %s logged in successfully", user.Username),
 		IsActive: true,
 	})
+	result := domain.Convert[domain.User, domain.UserResponse](user)
+	for _, role := range user.Roles {
+		result.Role = strings.ToLower(role.Name)
+	}
 	return &domain.LoginUserResponse{
 		AccessToken: accessToken,
-		User:        domain.Convert[domain.User, domain.UserResponse](user),
+		User:        result,
 	}, nil
 }
 
@@ -194,18 +198,18 @@ func (s *Service) DeleteUser(id string) (*domain.UserResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	if result.Role == "admin" {
-		return nil, errors.New("cannot delete admin user")
-	}
-	if result.Role == "student" {
-		CountBorrwedCopiesUserID, err := s.repo.CountBorrwedCopiesUserID(id)
-		if err != nil {
-			return nil, err
-		}
-		if CountBorrwedCopiesUserID > 0 {
-			return nil, fmt.Errorf("user has %d copies borrowed cannot delete it", CountBorrwedCopiesUserID)
-		}
-	}
+	// if result.Role == "admin" {
+	// 	return nil, errors.New("cannot delete admin user")
+	// }
+	// if result.Role == "student" {
+	// 	CountBorrwedCopiesUserID, err := s.repo.CountBorrwedCopiesUserID(id)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	if CountBorrwedCopiesUserID > 0 {
+	// 		return nil, fmt.Errorf("user has %d copies borrowed cannot delete it", CountBorrwedCopiesUserID)
+	// 	}
+	// }
 	err = s.repo.DeleteUser(id)
 	if err != nil {
 		return nil, err

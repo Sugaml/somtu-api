@@ -40,6 +40,21 @@ func NewDB(config config.Config) (*gorm.DB, error) {
 	if config.DB_AUTO_MIGRATE != "false" {
 		err = db.AutoMigrate(
 			&domain.User{},
+			&domain.Role{},
+			&domain.UserRole{},
+			&domain.BaseModel{},
+			&domain.Program{},
+			&domain.Semester{},
+			&domain.TimeSlot{},
+			&domain.Subject{},
+			&domain.Faculty{},
+			&domain.Building{},
+			&domain.Floor{},
+			&domain.Room{},
+			&domain.ClassRoutine{},
+			&domain.StudentProfile{},
+			&domain.TeacherProfile{},
+			&domain.StaffProfile{},
 			&domain.AuditLog{},
 			&domain.Book{},
 			&domain.BookCopy{},
@@ -55,6 +70,7 @@ func NewDB(config config.Config) (*gorm.DB, error) {
 		// db.Raw("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
 	}
 	db.Migrator().CreateConstraint(&domain.ClassRoutine{}, "unique_room_time")
+
 	db.Exec(`
 		CREATE UNIQUE INDEX idx_room_time
 		ON class_routines (room_id, day_of_week, time_slot_id);

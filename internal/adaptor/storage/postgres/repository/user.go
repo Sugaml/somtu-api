@@ -69,7 +69,7 @@ func (r *Repository) ListStudent(req *domain.UserListRequest) ([]*domain.User, i
 
 func (r *Repository) GetUser(id string) (*domain.User, error) {
 	var data domain.User
-	if err := r.db.Model(&domain.User{}).
+	if err := r.db.Model(&domain.User{}).Preload("Roles").
 		Take(&data, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (r *Repository) GetStudentbyID(studentID string) (*domain.User, error) {
 
 func (r *Repository) GetUserbyUsername(username string) (*domain.User, error) {
 	var data domain.User
-	if err := r.db.Model(&domain.User{}).
+	if err := r.db.Model(&domain.User{}).Preload("Roles").
 		Take(&data, "username = ?", username).Error; err != nil {
 		return nil, err
 	}

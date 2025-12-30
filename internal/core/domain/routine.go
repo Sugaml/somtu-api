@@ -34,6 +34,6 @@ type ClassRoutine struct {
 	TimeSlotID uint
 	TimeSlot   TimeSlot
 
-	DayOfWeek    DayOfWeek `gorm:"type:enum('MON','TUE','WED','THU','FRI','SAT')"`
+	DayOfWeek    DayOfWeek `gorm:"type:varchar(20);not null"`
 	AcademicYear string    `gorm:"size:20"`
 }
