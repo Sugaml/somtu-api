@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: myhost
+  namespace: lms
+spec:
+  rules:
+  - host: lms.somtu.edu.np # change as per domain.edu.com.np
+    http:
+      paths:
+      - backend:
+          service:
+            name: lms-ui  # change as per service name
+            port:
+              number: 80 # change as per service port
+        path: /
+        pathType: ImplementationSpecific

@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-lms
+    environment:
+      POSTGRES_USER: somtu
+      POSTGRES_PASSWORD: SoMTu_c1_GQ2sBTXy46RMhHq9
+      POSTGRES_DB: somtu
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  lms-api:
+    image: sugamdocker35/lms-api:v2.0.6
+    container_name: lms-api
+    depends_on:
+      - postgres
+    environment:
+      HTTP_PORT: "8080"
+      JWT_SECRET: "my-1234433432qggag"
+      DB_AUTO_MIGRATE: "true"
+      DB_SOURCE: postgres://somtu:SoMTu_c1_GQ2sBTXy46RMhHq9@postgres-lms:5432/somtu
+    ports:
+      - "30080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  lms-ui:
+    image: sugamdocker35/lms-ui:v2.0.3
+    container_name: lms-ui
+    depends_on:
+      - lms-api
+    environment:
+      VITE_API_BASE_URL: "http://lms-api:8080/api/v1/lms"
+    ports:
+      - "30081:80"   # Expose UI on host:30081
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+volumes:
+  postgres-data:
